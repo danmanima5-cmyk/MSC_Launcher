@@ -1,23 +1,33 @@
-# Политика конфиденциальности приложения MSC Launcher
+# MSC Launcher Privacy Policy
 
-Последнее обновление: 04.07.2026
+**Last updated: July 4, 2026**
 
-Мы заботимся о конфиденциальности ваших данных. В данном документе описано, какие данные собирает MSC Launcher и как они используются.
+We care about your privacy. This document explains what data MSC Launcher may collect and how that data is used.
 
-1. Какие данные мы собираем
-MSC Launcher может получать доступ к следующим общедоступным данным Discord (в зависимости от выданных прав):
-- ID пользователя и его никнейм.
-- ID серверов (гильдий), на которые добавлено приложение.
-- Текстовые команды, отправляемые приложению.
+## 1. What Data We Collect
 
-2. Как используются данные
-Собранные данные используются исключительно для:
-- Обеспечения корректной работы функций лаунчера и интеграции со статусом Discord (Rich Presence).
-- Ведения внутренней статистики использования приложения.
-Мы НЕ продаем, не передаем и не распространяем ваши данные третьим лицам.
+MSC Launcher may access the following publicly available Discord data, depending on the permissions granted:
 
-3. Хранение данных
-Данные хранятся только до тех пор, пока это необходимо для обеспечения работы приложения. Пользователь может в любой момент удалить приложение со своего сервера или отозвать авторизацию в настройках своего аккаунта Discord, после чего обработка данных прекращается.
+* User ID and username.
+* IDs of servers (guilds) where the application has been added.
+* Text commands sent to the application.
 
-4. Контакты
-По всем вопросам работы приложения или удаления данных вы можете связаться с разработчиком через Discord: [Ваш ник в Дискорде или ссылка на сервер поддержки].
+## 2. How We Use the Data
+
+The collected data is used exclusively for:
+
+* Ensuring the proper operation of launcher features and Discord integration, including Discord Rich Presence.
+* Maintaining internal usage statistics.
+
+**We do not sell, share, or distribute your data to third parties.**
+
+## 3. Data Storage
+
+Data is stored only for as long as necessary to provide and maintain the functionality of the application.
+
+Users may remove the application from their server or revoke its authorization at any time through their Discord account settings. Once authorization is revoked, the processing of the corresponding data will cease.
+
+## 4. Contact
+
+If you have any questions regarding the application or wish to request the deletion of your data, you can contact the developer via Discord: doymine2
+
