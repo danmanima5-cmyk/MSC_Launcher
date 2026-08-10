@@ -1,6 +1,6 @@
 # MSC Launcher Privacy Policy
 
-**Last updated: July 4, 2026**
+**Last updated: August 10, 2026**
 
 We care about your privacy. This document explains what data MSC Launcher may collect and how that data is used.
 
