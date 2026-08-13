@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MSC Launcher Metro Ad</title>
+  <style>
+    @font-face {
+      font-family: Tektur;
+      src: url("../src/main/resources/Resources/fonts/Tektur-Regular.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --blue: #0078d7;
+      --teal: #00aba9;
+      --green: #7fba00;
+      --orange: #f7630c;
+      --magenta: #b4009e;
+      --yellow: #ffb900;
+      --ink: #fff;
+      --soft: rgba(255, 255, 255, 0.74);
+      --dark: #121212;
+      --duration: 22s;
+      --snap: cubic-bezier(.16, .84, .24, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+      color: var(--ink);
+      font-family: "Segoe UI", Tektur, system-ui, sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    .stage-shell {
+      position: relative;
+      width: min(100vw, calc(100vh * 16 / 9));
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: var(--blue);
+      isolation: isolate;
+    }
+
+    .ad {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .ad.replay * {
+      animation: none !important;
+    }
+
+    .ad.metro-only > :not(.launcher-tiles-demo):not(.beat) {
+      display: none;
+    }
+
+    .color-wash,
+    .map-wash,
+    .metro-grid,
+    .word-burst,
+    .touch-stage,
+    .device,
+    .customize-launch,
+    .feature-wall,
+    .gameplay,
+    .tile-strip,
+    .launcher-tiles-demo,
+    .final-card {
+      position: absolute;
+      inset: 0;
+    }
+
+    .color-wash {
+      z-index: 0;
+      background:
+        linear-gradient(90deg, var(--blue) 0 42%, var(--teal) 42% 58%, var(--green) 58% 100%);
+      animation: colorBlocks var(--duration) steps(1, end) infinite;
+    }
+
+    .map-wash {
+      z-index: 1;
+      opacity: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 120, 215, 0.82), rgba(0, 171, 169, 0.24), rgba(18, 18, 18, 0.75)),
+        url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+      animation: mapPunch var(--duration) var(--snap) infinite;
+    }
+
+    .metro-grid {
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 0.78vw;
+      padding: 5.3vw 6.2vw;
+      animation: gridTravel var(--duration) var(--snap) infinite;
+    }
+
+    .tile {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      align-content: end;
+      justify-items: start;
+      padding: 1.05vw;
+      background: rgba(255, 255, 255, 0.16);
+      transform: translate3d(0, 120%, 0);
+      opacity: 0;
+      animation: tilePop var(--duration) var(--snap) infinite;
+    }
+
+    .tile.blue { background: var(--blue); }
+    .tile.teal { background: var(--teal); }
+    .tile.green { background: var(--green); }
+    .tile.orange { background: var(--orange); }
+    .tile.magenta { background: var(--magenta); }
+    .tile.yellow { background: var(--yellow); color: #141414; }
+    .tile.dark { background: #1f1f1f; }
+    .tile.photo {
+      background:
+        linear-gradient(0deg, rgba(0, 0, 0, 0.52), transparent 62%),
+        url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+    }
+
+    .tile.large { grid-column: span 2; grid-row: span 2; }
+    .tile.wide { grid-column: span 2; }
+    .tile.tall { grid-row: span 2; }
+
+    .tile:nth-child(1) { animation-delay: 0.1s; }
+    .tile:nth-child(2) { animation-delay: 0.22s; }
+    .tile:nth-child(3) { animation-delay: 0.34s; }
+    .tile:nth-child(4) { animation-delay: 0.46s; }
+    .tile:nth-child(5) { animation-delay: 0.58s; }
+    .tile:nth-child(6) { animation-delay: 0.7s; }
+    .tile:nth-child(7) { animation-delay: 0.82s; }
+    .tile:nth-child(8) { animation-delay: 0.94s; }
+    .tile:nth-child(9) { animation-delay: 1.06s; }
+    .tile:nth-child(10) { animation-delay: 1.18s; }
+    .tile:nth-child(11) { animation-delay: 1.3s; }
+    .tile:nth-child(12) { animation-delay: 1.42s; }
+
+    .tile.feature-tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 0.32vw solid rgba(255, 255, 255, 0.78);
+      opacity: 0;
+      animation: featureTileFocus var(--duration) steps(1, end) infinite;
+    }
+
+    .tile img {
+      width: clamp(30px, 4vw, 78px);
+      height: clamp(30px, 4vw, 78px);
+      object-fit: contain;
+      margin-bottom: 0.6vw;
+      image-rendering: auto;
+    }
+
+    .tile .pixel {
+      image-rendering: pixelated;
+    }
+
+    .tile strong {
+      display: block;
+      max-width: 100%;
+      font-size: clamp(14px, 1.7vw, 34px);
+      line-height: 0.96;
+      font-weight: 300;
+      letter-spacing: 0;
+      text-transform: lowercase;
+    }
+
+    .tile span {
+      display: block;
+      margin-top: 0.45vw;
+      color: currentColor;
+      opacity: 0.82;
+      font-size: clamp(10px, 0.82vw, 16px);
+      line-height: 1.24;
+    }
+
+    .brand-line {
+      position: absolute;
+      z-index: 6;
+      left: 6.2vw;
+      top: 4.8vw;
+      display: flex;
+      align-items: center;
+      gap: 1vw;
+      opacity: 0;
+      animation: brandSnap var(--duration) var(--snap) infinite;
+    }
+
+    .brand-line img {
+      width: clamp(48px, 5vw, 96px);
+      height: clamp(48px, 5vw, 96px);
+      image-rendering: pixelated;
+    }
+
+    .brand-line strong {
+      font-size: clamp(30px, 4.8vw, 92px);
+      line-height: 0.92;
+      font-weight: 300;
+      letter-spacing: 0;
+    }
+
+    .brand-line span {
+      display: block;
+      margin-top: 0.2vw;
+      color: var(--soft);
+      font-size: clamp(12px, 1.1vw, 22px);
+      font-weight: 400;
+    }
+
+    .word-burst {
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .word {
+      position: absolute;
+      left: 6.2vw;
+      top: 34%;
+      width: 70vw;
+      margin: 0;
+      font-size: clamp(48px, 8.8vw, 168px);
+      line-height: 0.9;
+      font-weight: 200;
+      letter-spacing: 0;
+      opacity: 0;
+      transform: translate3d(-12%, 0, 0);
+      animation: wordFlip var(--duration) var(--snap) infinite;
+    }
+
+    .word:nth-child(2) { top: 43%; animation-delay: 2.12s; color: #101010; }
+    .word:nth-child(3) { top: 28%; animation-delay: 4.22s; }
+    .word:nth-child(4) { top: 41%; animation-delay: 6.24s; color: #101010; }
+
+    .touch-stage {
+      z-index: 7;
+      display: grid;
+      grid-template-columns: 31% 69%;
+      opacity: 0;
+      transform: translate3d(0, 7%, 0) scale(0.98);
+      background:
+        linear-gradient(90deg, #101010 0 31%, #0078d7 31% 100%);
+      animation: touchStagePass var(--duration) var(--snap) infinite;
+      pointer-events: none;
+    }
+
+    .touch-copy {
+      display: grid;
+      align-content: center;
+      gap: 1vw;
+      padding: 0 2.6vw 0 4.6vw;
+    }
+
+    .touch-copy h2 {
+      margin: 0;
+      font-size: clamp(38px, 5.8vw, 112px);
+      line-height: 0.88;
+      font-weight: 200;
+      letter-spacing: 0;
+      text-transform: lowercase;
+    }
+
+    .touch-copy p {
+      width: min(25ch, 100%);
+      margin: 0;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: clamp(15px, 1.35vw, 27px);
+      line-height: 1.24;
+      font-weight: 300;
+    }
+
+    .touch-board {
+      position: relative;
+      margin: 4vw 4.8vw 4vw 1.4vw;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        rgba(255, 255, 255, 0.08);
+      background-size: 8.7vw 8.7vw;
+      box-shadow: inset 0 0 0 0.18vw rgba(255, 255, 255, 0.18);
+    }
+
+    .touch-tile {
+      position: absolute;
+      overflow: hidden;
+      display: grid;
+      align-content: end;
+      padding: 1vw;
+      color: white;
+      box-shadow: 0 0.45vw 0 rgba(0, 0, 0, 0.14);
+      transform-origin: left top;
+      animation: metroTileToTab var(--duration) var(--snap) infinite;
+    }
+
+    .touch-tile strong {
+      font-size: clamp(14px, 1.65vw, 32px);
+      line-height: 0.96;
+      font-weight: 300;
+      letter-spacing: 0;
+    }
+
+    .touch-tile span {
+      display: block;
+      margin-top: 0.45vw;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: clamp(10px, 0.82vw, 16px);
+      line-height: 1.16;
+    }
+
+    .touch-tile.a {
+      left: 3%;
+      top: 8%;
+      width: 30%;
+      height: 39%;
+      background: var(--teal);
+      animation-name: metroTileA;
+    }
+
+    .touch-tile.b {
+      left: 35%;
+      top: 8%;
+      width: 29%;
+      height: 18%;
+      background: var(--orange);
+      animation-name: metroTileB;
+    }
+
+    .touch-tile.c {
+      left: 66%;
+      top: 8%;
+      width: 31%;
+      height: 39%;
+      background:
+        linear-gradient(0deg, rgba(0, 0, 0, 0.48), transparent 64%),
+        url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+      animation-name: metroTileC;
+    }
+
+    .touch-tile.d {
+      left: 35%;
+      top: 29%;
+      width: 13.5%;
+      height: 18%;
+      background: var(--green);
+      animation-name: metroTileD;
+    }
+
+    .touch-tile.e {
+      left: 50.5%;
+      top: 29%;
+      width: 13.5%;
+      height: 18%;
+      background: var(--magenta);
+      animation-name: metroTileE;
+    }
+
+    .touch-tile.f {
+      left: 3%;
+      top: 51%;
+      width: 45%;
+      height: 38%;
+      background: #1f1f1f;
+      animation-name: metroTileF;
+    }
+
+    .touch-tile.g {
+      left: 50%;
+      top: 51%;
+      width: 47%;
+      height: 38%;
+      background: var(--yellow);
+      color: #121212;
+      animation-name: metroTileG;
+    }
+
+    .touch-tile.g span {
+      color: rgba(18, 18, 18, 0.7);
+    }
+
+    .touch-tile.active::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 0.34vw solid rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      animation: touchTileGrip var(--duration) steps(1, end) infinite;
+    }
+
+    .metro-tabs {
+      position: absolute;
+      z-index: 2;
+      left: 3%;
+      right: 3%;
+      top: 8%;
+      height: 13%;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      gap: 0.42vw;
+      opacity: 0;
+      transform: translate3d(0, 22%, 0);
+      animation: metroTabsReveal var(--duration) var(--snap) infinite;
+    }
+
+    .metro-tab {
+      display: grid;
+      place-items: center;
+      padding: 0 1vw;
+      background: rgba(255, 255, 255, 0.18);
+      color: white;
+      font-size: clamp(12px, 1vw, 20px);
+      line-height: 1;
+      font-weight: 400;
+      text-transform: lowercase;
+      box-shadow: inset 0 -0.3vw 0 transparent;
+    }
+
+    .metro-tab.active {
+      background: #fff;
+      color: #111;
+      box-shadow: inset 0 -0.3vw 0 var(--yellow);
+    }
+
+    .metro-panel {
+      position: absolute;
+      z-index: 1;
+      left: 3%;
+      right: 3%;
+      top: 24%;
+      bottom: 10%;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1vw;
+      padding: 1vw;
+      opacity: 0;
+      transform: translate3d(0, 18%, 0);
+      background: rgba(255, 255, 255, 0.92);
+      color: #101010;
+      animation: metroPanelReveal var(--duration) var(--snap) infinite;
+    }
+
+    .metro-panel-main {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(0deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0.02)),
+        url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+    }
+
+    .metro-panel-main strong {
+      position: absolute;
+      left: 1.1vw;
+      bottom: 0.9vw;
+      color: white;
+      font-size: clamp(28px, 4.2vw, 82px);
+      line-height: 0.88;
+      font-weight: 200;
+    }
+
+    .metro-panel-side {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 0.7vw;
+    }
+
+    .metro-panel-row {
+      display: grid;
+      align-content: center;
+      gap: 0.45vw;
+      padding: 0.8vw;
+      background: #f4f4f4;
+      border-left: 0.44vw solid var(--blue);
+      font-size: clamp(12px, 1vw, 20px);
+      line-height: 1.1;
+    }
+
+    .metro-panel-row b {
+      font-weight: 500;
+    }
+
+    .metro-panel-row i {
+      display: block;
+      height: 0.42vw;
+      min-height: 5px;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      animation: metroProgress var(--duration) var(--snap) infinite;
+    }
+
+    .finger {
+      position: absolute;
+      z-index: 5;
+      left: 47%;
+      top: 56%;
+      width: 33vw;
+      height: 25vw;
+      max-width: 620px;
+      max-height: 470px;
+      min-width: 280px;
+      min-height: 210px;
+      opacity: 0;
+      object-fit: cover;
+      object-position: left center;
+      mix-blend-mode: multiply;
+      filter: drop-shadow(0 1vw 1.4vw rgba(0, 0, 0, 0.34));
+      transform-origin: 72% 40%;
+      animation: fingerDrag var(--duration) var(--snap) infinite;
+    }
+
+    .touch-ripple {
+      position: absolute;
+      z-index: 4;
+      left: 61%;
+      top: 61%;
+      width: 7vw;
+      min-width: 72px;
+      aspect-ratio: 1;
+      border: 0.22vw solid rgba(255, 255, 255, 0.86);
+      border-radius: 999px;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.24);
+      animation: touchRipple var(--duration) ease-out infinite;
+    }
+
+    .cursor {
+      position: absolute;
+      z-index: 8;
+      left: 80vw;
+      top: 76vh;
+      width: 2.4vw;
+      min-width: 26px;
+      aspect-ratio: 0.72;
+      opacity: 0;
+      transform-origin: 20% 10%;
+      animation: cursorClick var(--duration) var(--snap) infinite;
+    }
+
+    .cursor::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: white;
+      clip-path: polygon(0 0, 0 88%, 24% 68%, 40% 100%, 58% 92%, 42% 62%, 72% 62%);
+      filter: drop-shadow(0 0.24vw 0.4vw rgba(0, 0, 0, 0.34));
+    }
+
+    .cursor::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      top: 12%;
+      width: 4.2vw;
+      min-width: 44px;
+      aspect-ratio: 1;
+      border: 0.18vw solid rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      transform: scale(0.2);
+      animation: clickRing var(--duration) ease-out infinite;
+    }
+
+    .device {
+      z-index: 4;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transform: translate3d(16%, 0, 0) scale(0.94);
+      animation: devicePass var(--duration) var(--snap) infinite;
+    }
+
+    .window {
+      width: 56vw;
+      aspect-ratio: 1.62;
+      background: #151515;
+      border: 0.4vw solid #2b2b2b;
+      box-shadow: 0 3.2vw 0 rgba(0, 0, 0, 0.24);
+      display: grid;
+      grid-template-rows: 9% 1fr;
+    }
+
+    .window-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.2vw;
+      background: #242424;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: clamp(9px, 0.78vw, 15px);
+    }
+
+    .window-body {
+      display: grid;
+      grid-template-columns: 12% 1fr;
+      min-height: 0;
+    }
+
+    .window-nav {
+      display: grid;
+      align-content: start;
+      gap: 0.7vw;
+      padding: 1vw;
+      background: #0078d7;
+    }
+
+    .window-nav img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: contain;
+      padding: 18%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .window-content {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1vw;
+      padding: 1vw;
+      background: #eee;
+      color: #111;
+    }
+
+    .preview {
+      position: relative;
+      overflow: hidden;
+      background: url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+    }
+
+    .preview::after {
+      content: "играть";
+      position: absolute;
+      left: 1.2vw;
+      bottom: 1vw;
+      color: white;
+      font-size: clamp(24px, 4vw, 76px);
+      font-weight: 200;
+      line-height: 0.9;
+      text-shadow: 0 0.4vw 1.4vw rgba(0, 0, 0, 0.58);
+    }
+
+    .side-cards {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 0.8vw;
+    }
+
+    .mini-card {
+      display: grid;
+      align-items: end;
+      padding: 0.8vw;
+      color: white;
+      font-size: clamp(12px, 1.3vw, 25px);
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .mini-card:nth-child(1) { background: var(--teal); }
+    .mini-card:nth-child(2) { background: var(--green); }
+    .mini-card:nth-child(3) { background: var(--orange); }
+
+    .customize-launch {
+      z-index: 6;
+      display: grid;
+      grid-template-columns: 43% 57%;
+      opacity: 0;
+      transform: scale(0.18);
+      transform-origin: 22% 37%;
+      animation: customizeOpen var(--duration) var(--snap) infinite;
+      background: #111;
+    }
+
+    .customize-cover {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(0deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.04)),
+        url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+    }
+
+    .customize-cover::after {
+      content: "обои";
+      position: absolute;
+      left: 3vw;
+      bottom: 2.5vw;
+      font-size: clamp(42px, 7vw, 134px);
+      line-height: 0.86;
+      font-weight: 200;
+      letter-spacing: 0;
+    }
+
+    .customize-copy {
+      display: grid;
+      align-content: center;
+      gap: 1.4vw;
+      padding: 0 6vw 0 4vw;
+      background: var(--blue);
+    }
+
+    .customize-copy h2 {
+      margin: 0;
+      font-size: clamp(42px, 6.4vw, 124px);
+      line-height: 0.88;
+      font-weight: 200;
+      letter-spacing: 0;
+    }
+
+    .customize-copy p {
+      width: min(31ch, 100%);
+      margin: 0;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: clamp(16px, 1.65vw, 32px);
+      line-height: 1.25;
+      font-weight: 300;
+    }
+
+    .settings-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8vw;
+      width: min(34vw, 640px);
+      margin-top: 0.4vw;
+    }
+
+    .setting-row {
+      display: grid;
+      gap: 0.45vw;
+      padding: 0.8vw;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .setting-row b {
+      font-size: clamp(12px, 1vw, 19px);
+      font-weight: 400;
+    }
+
+    .setting-bar {
+      height: 0.45vw;
+      min-height: 5px;
+      background: rgba(255, 255, 255, 0.24);
+      overflow: hidden;
+    }
+
+    .setting-bar i {
+      display: block;
+      height: 100%;
+      background: white;
+      animation: settingFill var(--duration) var(--snap) infinite;
+    }
+
+    .setting-row:nth-child(2) .setting-bar i { animation-delay: 0.2s; }
+    .setting-row:nth-child(3) .setting-bar i { animation-delay: 0.4s; }
+    .setting-row:nth-child(4) .setting-bar i { animation-delay: 0.6s; }
+
+    .customize-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75vw;
+      margin-top: 0.6vw;
+    }
+
+    .customize-pills span {
+      padding: 0.65vw 0.9vw;
+      background: rgba(255, 255, 255, 0.18);
+      font-size: clamp(12px, 1vw, 19px);
+      line-height: 1;
+    }
+
+    .feature-wall {
+      z-index: 5;
+      display: grid;
+      grid-template-columns: 1.05fr 1.35fr;
+      gap: 2vw;
+      padding: 5vw 6vw;
+      opacity: 0;
+      transform: translate3d(0, 8%, 0);
+      animation: featureWallPass var(--duration) var(--snap) infinite;
+      background: linear-gradient(90deg, #1f1f1f 0 42%, var(--teal) 42% 100%);
+    }
+
+    .feature-title {
+      display: grid;
+      align-content: center;
+      gap: 1vw;
+    }
+
+    .feature-title h2 {
+      margin: 0;
+      font-size: clamp(44px, 7vw, 136px);
+      line-height: 0.88;
+      font-weight: 200;
+      letter-spacing: 0;
+    }
+
+    .feature-title p {
+      width: min(28ch, 100%);
+      margin: 0;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: clamp(16px, 1.45vw, 28px);
+      line-height: 1.28;
+      font-weight: 300;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 0.8vw;
+      align-content: center;
+    }
+
+    .feature-card {
+      min-height: 8.4vw;
+      display: grid;
+      align-content: end;
+      gap: 0.65vw;
+      padding: 1vw;
+      background: rgba(255, 255, 255, 0.18);
+      transform: translate3d(0, 26%, 0);
+      opacity: 0;
+      animation: featureCardPop var(--duration) var(--snap) infinite;
+    }
+
+    .feature-card:nth-child(2) { animation-delay: 0.15s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+    .feature-card:nth-child(4) { animation-delay: 0.45s; }
+    .feature-card:nth-child(5) { animation-delay: 0.6s; }
+    .feature-card:nth-child(6) { animation-delay: 0.75s; }
+
+    .feature-card img {
+      width: clamp(28px, 3.2vw, 62px);
+      aspect-ratio: 1;
+      object-fit: contain;
+    }
+
+    .feature-card strong {
+      font-size: clamp(14px, 1.45vw, 28px);
+      line-height: 0.98;
+      font-weight: 300;
+    }
+
+    .feature-card span {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(10px, 0.82vw, 16px);
+      line-height: 1.18;
+    }
+
+    .gameplay {
+      z-index: 6;
+      opacity: 0;
+      transform: scale(1.08);
+      animation: gameplayPass var(--duration) var(--snap) infinite;
+      background:
+        linear-gradient(#6fb7ff 0 42%, #74b84a 42% 100%);
+      overflow: hidden;
+    }
+
+    .gameplay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 0 48%, rgba(255, 255, 255, 0.12) 48% 52%, transparent 52%),
+        linear-gradient(0deg, transparent 0 48%, rgba(255, 255, 255, 0.12) 48% 52%, transparent 52%);
+      opacity: 0.55;
+    }
+
+    .sun {
+      position: absolute;
+      right: 9vw;
+      top: 5vw;
+      width: 6vw;
+      aspect-ratio: 1;
+      background: #ffe66d;
+    }
+
+    .cloud {
+      position: absolute;
+      height: 2.4vw;
+      background: white;
+      opacity: 0.9;
+      animation: cloudMove var(--duration) linear infinite;
+    }
+
+    .cloud.one { left: 12vw; top: 8vw; width: 13vw; }
+    .cloud.two { left: 54vw; top: 13vw; width: 18vw; animation-delay: -8s; }
+
+    .hill {
+      position: absolute;
+      bottom: 12vw;
+      width: 34vw;
+      height: 18vw;
+      background: #4d8c3c;
+      transform: skewX(-18deg);
+    }
+
+    .hill.left { left: -8vw; }
+    .hill.right { right: -9vw; background: #3f7c35; transform: skewX(18deg); }
+
+    .blocks {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 18vw;
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+    }
+
+    .block {
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      background: #6f4c2e;
+    }
+
+    .block:nth-child(-n + 16) { background: #3f9d42; }
+    .block:nth-child(4n) { background: #5c3d25; }
+    .block:nth-child(7n) { background: #7a5836; }
+
+    .player {
+      position: absolute;
+      left: 44vw;
+      bottom: 17.2vw;
+      width: 5vw;
+      height: 10vw;
+      animation: playerStep var(--duration) steps(1, end) infinite;
+    }
+
+    .player i {
+      position: absolute;
+      background: #263447;
+    }
+
+    .player .head { left: 1.25vw; top: 0; width: 2.5vw; height: 2.5vw; background: #d78b6f; }
+    .player .body { left: 1vw; top: 2.5vw; width: 3vw; height: 4vw; background: var(--blue); }
+    .player .arm-l { left: 0; top: 2.7vw; width: 1vw; height: 3.7vw; background: #d78b6f; }
+    .player .arm-r { right: 0; top: 2.7vw; width: 1vw; height: 3.7vw; background: #d78b6f; }
+    .player .leg-l { left: 1vw; bottom: 0; width: 1.25vw; height: 3.6vw; }
+    .player .leg-r { right: 1vw; bottom: 0; width: 1.25vw; height: 3.6vw; }
+
+    .game-ui {
+      position: absolute;
+      left: 5vw;
+      bottom: 4vw;
+      display: grid;
+      gap: 0.7vw;
+    }
+
+    .hearts {
+      display: flex;
+      gap: 0.35vw;
+    }
+
+    .heart {
+      width: 1.3vw;
+      min-width: 14px;
+      aspect-ratio: 1;
+      background: #e5243f;
+      transform: rotate(45deg);
+    }
+
+    .hotbar {
+      display: flex;
+      gap: 0.25vw;
+    }
+
+    .slot {
+      width: 3vw;
+      min-width: 34px;
+      aspect-ratio: 1;
+      background: rgba(40, 40, 40, 0.78);
+      border: 0.2vw solid rgba(255, 255, 255, 0.38);
+    }
+
+    .slot:first-child {
+      border-color: white;
+      background: rgba(0, 120, 215, 0.72);
+    }
+
+    .game-copy {
+      position: absolute;
+      left: 6vw;
+      top: 5vw;
+      width: 45vw;
+    }
+
+    .game-copy h2 {
+      margin: 0;
+      font-size: clamp(42px, 7.6vw, 146px);
+      line-height: 0.86;
+      font-weight: 200;
+      letter-spacing: 0;
+    }
+
+    .game-copy p {
+      margin: 1vw 0 0;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: clamp(16px, 1.55vw, 30px);
+      line-height: 1.22;
+      font-weight: 300;
+      text-shadow: 0 0.2vw 0.8vw rgba(0, 0, 0, 0.35);
+    }
+
+    .tile-strip {
+      z-index: 7;
+      top: auto;
+      height: 16vw;
+      min-height: 150px;
+      bottom: 3.8vw;
+      display: flex;
+      gap: 0.8vw;
+      padding-left: 100vw;
+      opacity: 0;
+      animation: stripRun var(--duration) linear infinite;
+    }
+
+    .strip-tile {
+      flex: 0 0 15vw;
+      min-width: 170px;
+      height: 100%;
+      display: grid;
+      align-content: end;
+      padding: 1vw;
+      color: white;
+      font-size: clamp(18px, 2vw, 38px);
+      font-weight: 200;
+      line-height: 0.98;
+      background: var(--blue);
+    }
+
+    .strip-tile:nth-child(2) { background: var(--teal); }
+    .strip-tile:nth-child(3) { background: var(--green); }
+    .strip-tile:nth-child(4) { background: var(--magenta); }
+    .strip-tile:nth-child(5) { background: var(--orange); }
+    .strip-tile:nth-child(6) { background: var(--yellow); color: #111; }
+    .strip-tile:nth-child(7) { background: #1f1f1f; }
+
+    .final-card {
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      opacity: 0;
+      transform: translate3d(0, 8%, 0);
+      animation: finale var(--duration) var(--snap) infinite;
+    }
+
+    .final-logo {
+      display: grid;
+      place-items: center;
+      background: var(--magenta);
+    }
+
+    .final-logo img {
+      width: 22vw;
+      max-width: 380px;
+      image-rendering: pixelated;
+    }
+
+    .final-copy {
+      display: grid;
+      align-content: center;
+      padding: 0 6vw 0 5vw;
+      background: var(--blue);
+    }
+
+    .final-copy strong {
+      display: block;
+      font-size: clamp(44px, 7.4vw, 142px);
+      line-height: 0.88;
+      font-weight: 200;
+      letter-spacing: 0;
+    }
+
+    .final-copy span {
+      display: block;
+      margin-top: 1.4vw;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: clamp(16px, 1.8vw, 35px);
+      font-weight: 300;
+    }
+
+    .launcher-tiles-demo {
+      z-index: 12;
+      overflow: hidden;
+      opacity: 0;
+      transform: translate3d(0, 5%, 0) scale(1.02);
+      animation: launcherDemoPass var(--duration) var(--snap) infinite;
+      perspective: 1200px;
+    }
+
+    .demo-bg {
+      position: absolute;
+      inset: 0;
+      background-color: #0078d7;
+      background-image:
+        radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.22) 0 0.6vw, transparent 0.7vw),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+      background-size: 7vw 7vw, 4.2vw 4.2vw, 4.2vw 4.2vw;
+      animation: launcherBgShift var(--duration) steps(1, end) infinite;
+    }
+
+    .demo-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(110deg, rgba(0, 0, 0, 0.2), transparent 45%),
+        linear-gradient(270deg, rgba(0, 0, 0, 0.34), transparent 48%);
+    }
+
+    .demo-title {
+      position: absolute;
+      z-index: 2;
+      left: 6vw;
+      top: 4.2vw;
+      margin: 0;
+      font-size: clamp(34px, 5.4vw, 104px);
+      line-height: 0.9;
+      font-weight: 200;
+      letter-spacing: 0;
+      opacity: 0;
+      animation: demoTitlePass var(--duration) var(--snap) infinite;
+    }
+
+    .demo-title span {
+      display: block;
+      margin-top: 0.5vw;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: clamp(13px, 1.25vw, 24px);
+      font-weight: 300;
+    }
+
+    .launcher-board {
+      position: absolute;
+      z-index: 3;
+      left: 6vw;
+      top: 15vw;
+      width: 58vw;
+      height: 34vw;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 0.72vw;
+      transform-origin: 42% 45%;
+      animation: boardCamera var(--duration) var(--snap) infinite;
+    }
+
+    .launcher-tile {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      align-content: end;
+      padding: 1vw;
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      box-shadow: 0 0.55vw 1.4vw rgba(0, 0, 0, 0.18);
+      opacity: 0;
+      transform: translate3d(0, 42%, 0) scale(0.92);
+      animation: launcherTileIn var(--duration) var(--snap) infinite;
+    }
+
+    .launcher-tile:nth-child(2) { animation-delay: 0.08s; }
+    .launcher-tile:nth-child(3) { animation-delay: 0.16s; }
+    .launcher-tile:nth-child(4) { animation-delay: 0.24s; }
+    .launcher-tile:nth-child(5) { animation-delay: 0.32s; }
+    .launcher-tile:nth-child(6) { animation-delay: 0.4s; }
+    .launcher-tile:nth-child(7) { animation-delay: 0.48s; }
+    .launcher-tile:nth-child(8) { animation-delay: 0.56s; }
+
+    .launcher-tile.wide { grid-column: span 2; }
+    .launcher-tile.large { grid-column: span 2; grid-row: span 2; }
+    .launcher-tile.blue { background: var(--blue); }
+    .launcher-tile.teal { background: var(--teal); }
+    .launcher-tile.green { background: var(--green); }
+    .launcher-tile.orange { background: var(--orange); }
+    .launcher-tile.magenta { background: var(--magenta); }
+    .launcher-tile.dark { background: #171717; }
+    .launcher-tile.release { background: #fff; color: #111; }
+
+    .launcher-tile img {
+      width: clamp(40px, 5.1vw, 98px);
+      height: clamp(40px, 5.1vw, 98px);
+      object-fit: contain;
+      margin-bottom: 0.8vw;
+      image-rendering: auto;
+      filter: drop-shadow(0 0.25vw 0.35vw rgba(0, 0, 0, 0.25));
+    }
+
+    .launcher-tile strong {
+      font-size: clamp(16px, 2vw, 38px);
+      line-height: 0.96;
+      font-weight: 300;
+      letter-spacing: 0;
+    }
+
+    .launcher-tile span {
+      margin-top: 0.35vw;
+      color: currentColor;
+      opacity: 0.75;
+      font-size: clamp(10px, 0.9vw, 17px);
+      line-height: 1.15;
+    }
+
+    .launcher-tile.dragged {
+      z-index: 4;
+      transform-origin: center;
+      animation: launcherTileDrag var(--duration) var(--snap) infinite;
+    }
+
+    .launcher-tile.swap-target {
+      z-index: 3;
+      transform-origin: center;
+      animation: launcherTileSwapTarget var(--duration) var(--snap) infinite;
+    }
+
+    .launcher-tile.release {
+      z-index: 5;
+      animation: releaseTileFocus var(--duration) var(--snap) infinite;
+    }
+
+    .launcher-tile.release::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 0.36vw solid rgba(255, 255, 255, 0.86);
+      opacity: 0;
+      animation: releaseTileBorder var(--duration) steps(1, end) infinite;
+    }
+
+    .drag-shadow {
+      position: absolute;
+      z-index: 2;
+      left: 21vw;
+      top: 24vw;
+      width: 13.8vw;
+      height: 10.6vw;
+      border: 0.24vw dashed rgba(255, 255, 255, 0.78);
+      opacity: 0;
+      animation: dragTarget var(--duration) var(--snap) infinite;
+    }
+
+    .palette {
+      position: absolute;
+      z-index: 5;
+      right: 10vw;
+      top: 27vw;
+      opacity: 0;
+      animation: palettePass var(--duration) var(--snap) infinite;
+    }
+
+    .color-dot {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 8vw;
+      min-width: 88px;
+      aspect-ratio: 1;
+      border-radius: 999px;
+      background: var(--blue);
+      box-shadow: inset 0 0 0 0.36vw rgba(255, 255, 255, 0.86), 0 0.8vw 1.8vw rgba(0, 0, 0, 0.24);
+      animation: dotColorCycle var(--duration) steps(1, end) infinite;
+    }
+
+    .color-dot::after {
+      content: "";
+      position: absolute;
+      inset: -0.7vw;
+      border: 0.18vw solid white;
+      border-radius: inherit;
+      opacity: 0;
+      transform: scale(0.55);
+      animation: dotPulse var(--duration) ease-out infinite;
+    }
+
+    .color-dot::before {
+      content: "";
+      width: 2.6vw;
+      min-width: 28px;
+      aspect-ratio: 1;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow:
+        -1.8vw 0 0 rgba(255, 255, 255, 0.26),
+        1.8vw 0 0 rgba(255, 255, 255, 0.26);
+    }
+
+    .metro-cursor {
+      position: absolute;
+      z-index: 8;
+      right: 18vw;
+      top: 35vw;
+      width: 4vw;
+      min-width: 44px;
+      aspect-ratio: 0.72;
+      opacity: 0;
+      transform-origin: 18% 8%;
+      animation: metroCursorClick var(--duration) var(--snap) infinite;
+    }
+
+    .metro-cursor::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: white;
+      clip-path: polygon(0 0, 0 88%, 25% 67%, 42% 100%, 61% 91%, 44% 60%, 76% 60%);
+      filter: drop-shadow(0 0.32vw 0.42vw rgba(0, 0, 0, 0.42));
+    }
+
+    .metro-cursor::after {
+      content: "";
+      position: absolute;
+      left: 4%;
+      top: 2%;
+      width: 7.6vw;
+      min-width: 82px;
+      aspect-ratio: 1;
+      border: 0.2vw solid rgba(255, 255, 255, 0.92);
+      border-radius: 999px;
+      opacity: 0;
+      transform: scale(0.16);
+      animation: cursorClickRing var(--duration) ease-out infinite;
+    }
+
+    .release-window {
+      position: absolute;
+      z-index: 9;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.68), rgba(0, 120, 215, 0.88)),
+        url("../src/main/resources/Resources/wallpaper.png") center / cover no-repeat;
+      opacity: 0;
+      transform: scale(1.18);
+      animation: releaseWindowPass var(--duration) var(--snap) infinite;
+    }
+
+    .release-copy {
+      display: grid;
+      justify-items: center;
+      gap: 1.2vw;
+      text-align: center;
+      transform: translate3d(0, 8%, 0);
+      animation: releaseCopyPass var(--duration) var(--snap) infinite;
+    }
+
+    .tab-transition {
+      position: absolute;
+      z-index: 6;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      animation: tabTransitionPass var(--duration) var(--snap) infinite;
+    }
+
+    .tab-ghost {
+      position: absolute;
+      left: 20.9vw;
+      top: 15vw;
+      width: 13.8vw;
+      height: 10.7vw;
+      display: grid;
+      align-content: end;
+      gap: 0.35vw;
+      padding: 1vw;
+      color: #fff;
+      box-shadow: 0 0.7vw 1.8vw rgba(0, 0, 0, 0.25);
+      transform-origin: left top;
+      animation: ghostToTabs var(--duration) var(--snap) infinite;
+    }
+
+    .tab-ghost img {
+      width: clamp(34px, 4.2vw, 80px);
+      aspect-ratio: 1;
+      object-fit: contain;
+      filter: drop-shadow(0 0.2vw 0.35vw rgba(0, 0, 0, 0.24));
+    }
+
+    .tab-ghost strong {
+      font-size: clamp(14px, 1.65vw, 32px);
+      line-height: 0.95;
+      font-weight: 300;
+    }
+
+    .tab-ghost.mods {
+      background: var(--teal);
+      animation-name: ghostModsToTab;
+    }
+
+    .tab-ghost.skins {
+      left: 49.9vw;
+      background: var(--magenta);
+      animation-name: ghostSkinsToTab;
+    }
+
+    .tab-ghost.settings {
+      left: 6vw;
+      top: 26.4vw;
+      width: 20.9vw;
+      background: #60367e;
+      animation-name: ghostSettingsToTab;
+    }
+
+    .real-interface {
+      position: absolute;
+      z-index: 7;
+      left: 6vw;
+      right: 6vw;
+      top: 8.2vw;
+      bottom: 4.4vw;
+      display: grid;
+      grid-template-rows: 4.6vw 1fr;
+      background: rgba(20, 24, 30, 0.94);
+      box-shadow: 0 1.8vw 4vw rgba(0, 0, 0, 0.34);
+      opacity: 0;
+      transform: translate3d(0, 8%, 0) scale(0.98);
+      animation: realInterfacePass var(--duration) var(--snap) infinite;
+    }
+
+    .real-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: rgba(0, 0, 0, 0.34);
+    }
+
+    .real-tab {
+      display: flex;
+      align-items: center;
+      gap: 0.75vw;
+      padding: 0 1.25vw;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: clamp(13px, 1.16vw, 22px);
+      font-weight: 400;
+      box-shadow: inset 0 -0.32vw 0 transparent;
+      animation: realTabActive var(--duration) steps(1, end) infinite;
+    }
+
+    .real-tab img {
+      width: clamp(22px, 2.1vw, 40px);
+      aspect-ratio: 1;
+      object-fit: contain;
+    }
+
+    .real-tab.mods { background: rgba(0, 171, 169, 0.28); }
+    .real-tab.skins { background: rgba(180, 0, 158, 0.28); animation-name: realSkinsTabActive; }
+    .real-tab.settings { background: rgba(96, 54, 126, 0.32); animation-name: realSettingsTabActive; }
+
+    .real-body {
+      position: relative;
+      overflow: hidden;
+      padding: 1.05vw;
+      background:
+        linear-gradient(90deg, rgba(0, 171, 169, 0.14), transparent 38%),
+        rgba(24, 24, 27, 0.96);
+    }
+
+    .real-screen {
+      position: absolute;
+      inset: 1.05vw;
+      display: grid;
+      gap: 1vw;
+      opacity: 0;
+      transform: translate3d(5%, 0, 0);
+      animation: realScreenCycle var(--duration) var(--snap) infinite;
+    }
+
+    .real-screen.mods-screen {
+      grid-template-columns: 0.95fr 1.35fr;
+      animation-name: realModsScreen;
+    }
+
+    .real-screen.skins-screen {
+      grid-template-columns: 0.72fr 1.58fr;
+      animation-name: realSkinsScreen;
+    }
+
+    .real-screen.settings-screen {
+      grid-template-columns: 0.68fr 1.62fr;
+      animation-name: realSettingsScreen;
+    }
+
+    .real-card {
+      min-width: 0;
+      overflow: hidden;
+      padding: 1vw;
+      background: rgba(32, 32, 36, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .real-card h3 {
+      margin: 0 0 0.8vw;
+      font-size: clamp(17px, 1.8vw, 34px);
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .real-card p,
+    .real-row,
+    .real-pill {
+      font-size: clamp(10px, 0.86vw, 16px);
+      line-height: 1.22;
+    }
+
+    .search-bar {
+      height: 2.7vw;
+      min-height: 30px;
+      display: grid;
+      align-items: center;
+      padding: 0 1vw;
+      color: rgba(255, 255, 255, 0.55);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45vw;
+      margin: 0.8vw 0;
+    }
+
+    .real-pill {
+      padding: 0.5vw 0.75vw;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .real-pill.active {
+      background: var(--teal);
+      color: white;
+    }
+
+    .real-list {
+      display: grid;
+      gap: 0.55vw;
+    }
+
+    .real-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.75vw;
+      padding: 0.7vw;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .real-icon {
+      width: 2.4vw;
+      min-width: 28px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      font-size: clamp(8px, 0.62vw, 12px);
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.13);
+    }
+
+    .real-meter {
+      height: 0.44vw;
+      min-height: 5px;
+      background: rgba(255, 255, 255, 0.13);
+      overflow: hidden;
+    }
+
+    .real-meter i {
+      display: block;
+      height: 100%;
+      width: 76%;
+      background: linear-gradient(90deg, var(--teal), #fff);
+    }
+
+    .skin-preview {
+      min-height: 22vw;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        rgba(180, 0, 158, 0.16);
+      background-size: 2vw 2vw;
+    }
+
+    .skin-person {
+      position: relative;
+      width: 6vw;
+      height: 15vw;
+    }
+
+    .skin-person i {
+      position: absolute;
+      background: #40b7a4;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+    }
+
+    .skin-person .head { left: 1.8vw; top: 0; width: 2.4vw; height: 2.4vw; background: #d7a17f; }
+    .skin-person .body { left: 1.3vw; top: 2.4vw; width: 3.4vw; height: 5vw; background: #1d6fd0; }
+    .skin-person .arm-l { left: 0; top: 2.7vw; width: 1.2vw; height: 5.2vw; background: #d7a17f; }
+    .skin-person .arm-r { right: 0; top: 2.7vw; width: 1.2vw; height: 5.2vw; background: #d7a17f; }
+    .skin-person .leg-l { left: 1.3vw; top: 7.4vw; width: 1.55vw; height: 6.8vw; background: #29344a; }
+    .skin-person .leg-r { right: 1.3vw; top: 7.4vw; width: 1.55vw; height: 6.8vw; background: #29344a; }
+
+    .settings-list {
+      display: grid;
+      gap: 0.6vw;
+      align-content: start;
+    }
+
+    .settings-list .real-row {
+      grid-template-columns: auto 1fr;
+      min-height: 3.2vw;
+    }
+
+    .release-copy img {
+      width: clamp(72px, 9vw, 172px);
+      aspect-ratio: 1;
+      image-rendering: pixelated;
+    }
+
+    .release-copy strong {
+      font-size: clamp(34px, 6.6vw, 126px);
+      line-height: 0.9;
+      font-weight: 200;
+      letter-spacing: 0;
+    }
+
+    .release-copy span {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: clamp(18px, 2.1vw, 40px);
+      font-weight: 300;
+    }
+
+    .beat {
+      position: absolute;
+      z-index: 9;
+      inset: 0;
+      pointer-events: none;
+      background: white;
+      opacity: 0;
+      animation: beatFlash 1.06s steps(1, end) infinite;
+      mix-blend-mode: soft-light;
+    }
+
+    .controls {
+      position: fixed;
+      z-index: 30;
+      right: 16px;
+      bottom: 16px;
+      display: flex;
+      gap: 8px;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    .controls button {
+      border: 0;
+      background: rgba(18, 18, 18, 0.88);
+      color: #fff;
+      padding: 10px 12px;
+      cursor: pointer;
+      font: 600 12px / 1 "Segoe UI", system-ui, sans-serif;
+      text-transform: uppercase;
+    }
+
+    .controls button:hover {
+      background: rgba(0, 120, 215, 0.95);
+    }
+
+    @keyframes colorBlocks {
+      0%, 12% { background: linear-gradient(90deg, var(--blue) 0 42%, var(--teal) 42% 58%, var(--green) 58%); }
+      12.01%, 28% { background: linear-gradient(90deg, var(--yellow) 0 32%, var(--orange) 32% 62%, var(--magenta) 62%); }
+      28.01%, 47% { background: linear-gradient(90deg, var(--teal) 0 46%, var(--blue) 46% 74%, #1f1f1f 74%); }
+      47.01%, 67% { background: linear-gradient(90deg, var(--green) 0 25%, var(--blue) 25% 72%, var(--orange) 72%); }
+      67.01%, 82% { background: linear-gradient(90deg, #6fb7ff 0 42%, #74b84a 42%); }
+      82.01%, 100% { background: var(--blue); }
+    }
+
+    @keyframes mapPunch {
+      0%, 8% { opacity: 0; transform: scale(1.08); }
+      12%, 34% { opacity: 0.92; transform: scale(1.02); }
+      45%, 100% { opacity: 0; transform: scale(1.1); }
+    }
+
+    @keyframes gridTravel {
+      0%, 25% { opacity: 1; transform: translate3d(0, 0, 0); }
+      31%, 100% { opacity: 0; transform: translate3d(-22%, 0, 0); }
+    }
+
+    @keyframes tilePop {
+      0%, 4% { opacity: 0; transform: translate3d(0, 120%, 0) scale(0.96); }
+      8%, 22% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      29%, 100% { opacity: 0; transform: translate3d(-80%, 0, 0) scale(1); }
+    }
+
+    @keyframes featureTileFocus {
+      0%, 18% { opacity: 0; }
+      19%, 24% { opacity: 1; }
+      25%, 100% { opacity: 0; }
+    }
+
+    @keyframes brandSnap {
+      0%, 4% { opacity: 0; transform: translate3d(-6%, 0, 0); }
+      8%, 25% { opacity: 1; transform: translate3d(0, 0, 0); }
+      31%, 100% { opacity: 0; transform: translate3d(12%, 0, 0); }
+    }
+
+    @keyframes wordFlip {
+      0%, 11% { opacity: 0; transform: translate3d(-14%, 0, 0); }
+      14%, 20% { opacity: 1; transform: translate3d(0, 0, 0); }
+      25%, 100% { opacity: 0; transform: translate3d(18%, 0, 0); }
+    }
+
+    @keyframes touchStagePass {
+      0%, 29% { opacity: 0; transform: translate3d(0, 7%, 0) scale(0.98); }
+      33%, 47% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      49%, 100% { opacity: 0; transform: translate3d(-7%, 0, 0) scale(1.02); }
+    }
+
+    @keyframes metroTileToTab {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 39% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      43%, 46% { opacity: 0.96; }
+      49%, 100% { opacity: 0; }
+    }
+
+    @keyframes metroTileA {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 38% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.98; transform: translate3d(0, 0, 0) scale(1, 0.34); }
+      49%, 100% { opacity: 0; transform: translate3d(0, 0, 0) scale(1, 0.34); }
+    }
+
+    @keyframes metroTileB {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 38% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.98; transform: translate3d(-14%, 0, 0) scale(0.88, 0.72); }
+      49%, 100% { opacity: 0; transform: translate3d(-14%, 0, 0) scale(0.88, 0.72); }
+    }
+
+    @keyframes metroTileC {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 39% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.86; transform: translate3d(-27%, 0, 0) scale(0.72, 0.34); }
+      49%, 100% { opacity: 0; transform: translate3d(-27%, 0, 0) scale(0.72, 0.34); }
+    }
+
+    @keyframes metroTileD {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 39% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.9; transform: translate3d(138%, -116%, 0) scale(1.05, 0.72); }
+      49%, 100% { opacity: 0; transform: translate3d(138%, -116%, 0) scale(1.05, 0.72); }
+    }
+
+    @keyframes metroTileE {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 39% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.9; transform: translate3d(190%, -116%, 0) scale(1.05, 0.72); }
+      49%, 100% { opacity: 0; transform: translate3d(190%, -116%, 0) scale(1.05, 0.72); }
+    }
+
+    @keyframes metroTileF {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 38% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.74; transform: translate3d(0, -112%, 0) scale(0.64, 0.36); }
+      49%, 100% { opacity: 0; transform: translate3d(0, -112%, 0) scale(0.64, 0.36); }
+    }
+
+    @keyframes metroTileG {
+      0%, 32% { opacity: 0; transform: translate3d(0, 24%, 0) scale(0.92); }
+      35%, 39% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42%, 46% { opacity: 0.74; transform: translate3d(-36%, -112%, 0) scale(0.72, 0.36); }
+      49%, 100% { opacity: 0; transform: translate3d(-36%, -112%, 0) scale(0.72, 0.36); }
+    }
+
+    @keyframes touchTileGrip {
+      0%, 36% { opacity: 0; }
+      37%, 44% { opacity: 1; }
+      45%, 100% { opacity: 0; }
+    }
+
+    @keyframes metroTabsReveal {
+      0%, 40% { opacity: 0; transform: translate3d(0, 22%, 0); }
+      44%, 48% { opacity: 1; transform: translate3d(0, 0, 0); }
+      50%, 100% { opacity: 0; transform: translate3d(-8%, 0, 0); }
+    }
+
+    @keyframes metroPanelReveal {
+      0%, 42% { opacity: 0; transform: translate3d(0, 18%, 0); }
+      46%, 48% { opacity: 1; transform: translate3d(0, 0, 0); }
+      50%, 100% { opacity: 0; transform: translate3d(-8%, 0, 0); }
+    }
+
+    @keyframes metroProgress {
+      0%, 44% { width: 12%; }
+      47% { width: 92%; }
+      50%, 100% { width: 72%; }
+    }
+
+    @keyframes fingerDrag {
+      0%, 34% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-7deg) scale(1); }
+      36% { opacity: 1; transform: translate3d(0, 0, 0) rotate(-7deg) scale(1); }
+      37% { opacity: 1; transform: translate3d(0, 0, 0) rotate(-7deg) scale(0.96); }
+      39% { opacity: 1; transform: translate3d(-14vw, -4vw, 0) rotate(-5deg) scale(0.96); }
+      42% { opacity: 1; transform: translate3d(-24vw, -12vw, 0) rotate(-4deg) scale(0.96); }
+      45% { opacity: 1; transform: translate3d(-20vw, -18vw, 0) rotate(-3deg) scale(0.96); }
+      47% { opacity: 1; transform: translate3d(-20vw, -18vw, 0) rotate(-3deg) scale(1); }
+      50%, 100% { opacity: 0; transform: translate3d(-15vw, -22vw, 0) rotate(-2deg) scale(1); }
+    }
+
+    @keyframes touchRipple {
+      0%, 36% { opacity: 0; transform: translate(-50%, -50%) scale(0.24); }
+      37% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.24); }
+      40% { opacity: 0; transform: translate(-50%, -50%) scale(1.15); }
+      42% { opacity: 0.78; transform: translate(-27vw, -12vw) scale(0.24); }
+      45% { opacity: 0; transform: translate(-27vw, -12vw) scale(1.05); }
+      100% { opacity: 0; transform: translate(-27vw, -12vw) scale(1.05); }
+    }
+
+    @keyframes cursorClick {
+      0%, 13% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+      16% { opacity: 1; transform: translate3d(-43vw, -44vh, 0) scale(1); }
+      21% { opacity: 1; transform: translate3d(-59vw, -53vh, 0) scale(1); }
+      22% { opacity: 1; transform: translate3d(-59vw, -53vh, 0) scale(0.86); }
+      24% { opacity: 1; transform: translate3d(-59vw, -53vh, 0) scale(1); }
+      28%, 100% { opacity: 0; transform: translate3d(-59vw, -53vh, 0) scale(1); }
+    }
+
+    @keyframes clickRing {
+      0%, 21% { opacity: 0; transform: scale(0.2); }
+      22% { opacity: 0.85; transform: scale(0.2); }
+      26% { opacity: 0; transform: scale(1.25); }
+      100% { opacity: 0; transform: scale(1.25); }
+    }
+
+    @keyframes devicePass {
+      0%, 54% { opacity: 0; transform: translate3d(20%, 0, 0) scale(0.94); }
+      58%, 65% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      69%, 100% { opacity: 0; transform: translate3d(-18%, 0, 0) scale(1.03); }
+    }
+
+    @keyframes customizeOpen {
+      0%, 47% { opacity: 0; transform: scale(0.18); }
+      51%, 57% { opacity: 1; transform: scale(1); }
+      60%, 100% { opacity: 0; transform: scale(1.04); }
+    }
+
+    @keyframes settingFill {
+      0%, 50% { width: 18%; }
+      55% { width: 84%; }
+      60%, 100% { width: 64%; }
+    }
+
+    @keyframes featureWallPass {
+      0%, 65% { opacity: 0; transform: translate3d(0, 8%, 0); }
+      69%, 76% { opacity: 1; transform: translate3d(0, 0, 0); }
+      80%, 100% { opacity: 0; transform: translate3d(-8%, 0, 0); }
+    }
+
+    @keyframes featureCardPop {
+      0%, 67% { opacity: 0; transform: translate3d(0, 26%, 0); }
+      70%, 76% { opacity: 1; transform: translate3d(0, 0, 0); }
+      80%, 100% { opacity: 0; transform: translate3d(-22%, 0, 0); }
+    }
+
+    @keyframes gameplayPass {
+      0%, 74% { opacity: 0; transform: scale(1.08); }
+      78%, 88% { opacity: 1; transform: scale(1); }
+      92%, 100% { opacity: 0; transform: scale(0.98); }
+    }
+
+    @keyframes cloudMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(18vw); }
+    }
+
+    @keyframes playerStep {
+      0%, 78% { transform: translateX(0); }
+      81% { transform: translateX(2vw); }
+      84% { transform: translateX(4vw); }
+      87%, 100% { transform: translateX(6vw); }
+    }
+
+    @keyframes stripRun {
+      0%, 58% { opacity: 0; transform: translateX(0); }
+      61% { opacity: 1; transform: translateX(0); }
+      67% { opacity: 1; transform: translateX(-186vw); }
+      68%, 100% { opacity: 0; transform: translateX(-190vw); }
+    }
+
+    @keyframes finale {
+      0%, 90% { opacity: 0; transform: translate3d(0, 8%, 0); }
+      94%, 98% { opacity: 1; transform: translate3d(0, 0, 0); }
+      100% { opacity: 0; transform: translate3d(0, 0, 0); }
+    }
+
+    @keyframes launcherDemoPass {
+      0%, 98% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      100% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+    }
+
+    @keyframes launcherBgShift {
+      0%, 38% {
+        background-color: #0078d7;
+        background-image:
+          radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.22) 0 0.6vw, transparent 0.7vw),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+      }
+      39%, 49% {
+        background-color: #b4009e;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.16) 0 0.38vw, transparent 0.38vw 2.2vw);
+      }
+      50%, 60% {
+        background-color: #7fba00;
+        background-image:
+          radial-gradient(circle, rgba(255, 255, 255, 0.2) 0 0.32vw, transparent 0.38vw);
+        background-size: 3.2vw 3.2vw;
+      }
+      61%, 100% {
+        background-color: #f7630c;
+        background-image:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.16) 25%, transparent 25% 50%, rgba(255, 255, 255, 0.16) 50% 75%, transparent 75%);
+        background-size: 4vw 4vw;
+      }
+    }
+
+    @keyframes demoTitlePass {
+      0% { opacity: 0; transform: translate3d(-6%, 0, 0); }
+      6%, 82% { opacity: 1; transform: translate3d(0, 0, 0); }
+      90%, 100% { opacity: 0; transform: translate3d(0, -12%, 0); }
+    }
+
+    @keyframes launcherTileIn {
+      0% { opacity: 0; transform: translate3d(0, 42%, 0) scale(0.92); }
+      7%, 84% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      92%, 100% { opacity: 0; transform: translate3d(0, 0, 38vw) scale(3.2); }
+    }
+
+    @keyframes launcherTileDrag {
+      0% { opacity: 0; transform: translate3d(0, 42%, 0) scale(0.92); }
+      7%, 16% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      18% { opacity: 1; transform: translate3d(0, 0, 0) scale(1.06) rotate(0deg); }
+      25% { opacity: 1; transform: translate3d(15.2vw, -10.2vw, 0) scale(1.06) rotate(-2deg); }
+      29%, 84% { opacity: 1; transform: translate3d(15.2vw, -10.2vw, 0) scale(1) rotate(0deg); }
+      92%, 100% { opacity: 0; transform: translate3d(15.2vw, -10.2vw, 38vw) scale(3.2); }
+    }
+
+    @keyframes launcherTileSwapTarget {
+      0% { opacity: 0; transform: translate3d(0, 42%, 0) scale(0.92); }
+      7%, 17% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      18% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.96); }
+      25% { opacity: 1; transform: translate3d(-14.5vw, 10.2vw, 0) scale(0.96); }
+      29%, 84% { opacity: 1; transform: translate3d(-14.5vw, 10.2vw, 0) scale(1); }
+      92%, 100% { opacity: 0; transform: translate3d(-14.5vw, 10.2vw, 38vw) scale(3.2); }
+    }
+
+    @keyframes dragTarget {
+      0%, 17% { opacity: 0; transform: scale(0.9); }
+      18%, 29% { opacity: 0.85; transform: scale(1); }
+      32%, 100% { opacity: 0; transform: scale(1.05); }
+    }
+
+    @keyframes palettePass {
+      0%, 34% { opacity: 0; transform: translate3d(10%, 0, 0); }
+      38%, 70% { opacity: 1; transform: translate3d(0, 0, 0); }
+      78%, 100% { opacity: 0; transform: translate3d(8%, 0, 0); }
+    }
+
+    @keyframes metroCursorClick {
+      0%, 35% { opacity: 0; transform: translate3d(8vw, 8vw, 0) scale(1); }
+      38% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      42% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.88); }
+      44% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      50% { opacity: 1; transform: translate3d(0.2vw, 0.1vw, 0) scale(0.88); }
+      52% { opacity: 1; transform: translate3d(0.2vw, 0.1vw, 0) scale(1); }
+      58% { opacity: 1; transform: translate3d(-0.15vw, 0.25vw, 0) scale(0.88); }
+      60% { opacity: 1; transform: translate3d(-0.15vw, 0.25vw, 0) scale(1); }
+      66% { opacity: 1; transform: translate3d(0.15vw, -0.15vw, 0) scale(0.88); }
+      68% { opacity: 1; transform: translate3d(0.15vw, -0.15vw, 0) scale(1); }
+      76%, 100% { opacity: 0; transform: translate3d(4vw, 6vw, 0) scale(1); }
+    }
+
+    @keyframes cursorClickRing {
+      0%, 41% { opacity: 0; transform: scale(0.16); }
+      42% { opacity: 0.9; transform: scale(0.16); }
+      45% { opacity: 0; transform: scale(1.05); }
+      50% { opacity: 0.9; transform: scale(0.16); }
+      53% { opacity: 0; transform: scale(1.05); }
+      58% { opacity: 0.9; transform: scale(0.16); }
+      61% { opacity: 0; transform: scale(1.05); }
+      66% { opacity: 0.9; transform: scale(0.16); }
+      69%, 100% { opacity: 0; transform: scale(1.05); }
+    }
+
+    @keyframes dotColorCycle {
+      0%, 41% { background: var(--blue); }
+      42%, 49% { background: var(--magenta); }
+      50%, 57% { background: var(--green); }
+      58%, 65% { background: var(--orange); }
+      66%, 100% { background: var(--teal); }
+    }
+
+    @keyframes dotPulse {
+      0%, 41% { opacity: 0; transform: scale(0.55); }
+      42% { opacity: 0.9; transform: scale(0.55); }
+      45% { opacity: 0; transform: scale(1.4); }
+      50% { opacity: 0.9; transform: scale(0.55); }
+      53% { opacity: 0; transform: scale(1.4); }
+      58% { opacity: 0.9; transform: scale(0.55); }
+      61% { opacity: 0; transform: scale(1.4); }
+      66% { opacity: 0.9; transform: scale(0.55); }
+      69% { opacity: 0; transform: scale(1.4); }
+      100% { opacity: 0; transform: scale(1.4); }
+    }
+
+    @keyframes boardCamera {
+      0%, 82% { transform: translate3d(0, 0, 0) rotateY(0) scale(1); opacity: 1; }
+      89% { transform: translate3d(-8vw, -4vw, 16vw) rotateY(-4deg) scale(1.4); opacity: 1; }
+      96%, 100% { transform: translate3d(-34vw, -18vw, 72vw) rotateY(-6deg) scale(4.8); opacity: 0; }
+    }
+
+    @keyframes releaseTileFocus {
+      0% { opacity: 0; transform: translate3d(0, 42%, 0) scale(0.92); }
+      7%, 82% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      89% { opacity: 1; transform: translate3d(0, 0, 7vw) scale(1.18); }
+      96%, 100% { opacity: 0; transform: translate3d(0, 0, 46vw) scale(5); }
+    }
+
+    @keyframes releaseTileBorder {
+      0%, 82% { opacity: 0; }
+      83%, 95% { opacity: 1; }
+      96%, 100% { opacity: 0; }
+    }
+
+    @keyframes releaseWindowPass {
+      0%, 92% { opacity: 0; transform: scale(1.18); }
+      96%, 99% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1); }
+    }
+
+    @keyframes releaseCopyPass {
+      0%, 94% { opacity: 0; transform: translate3d(0, 8%, 0); }
+      97%, 100% { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    @keyframes tabTransitionPass {
+      0%, 68% { opacity: 0; }
+      70%, 88% { opacity: 1; }
+      93%, 100% { opacity: 0; }
+    }
+
+    @keyframes ghostModsToTab {
+      0%, 68% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+      70% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      78%, 88% { opacity: 1; transform: translate3d(-14.9vw, -6.8vw, 0) scale(1.49, 0.42); }
+      92%, 100% { opacity: 0; transform: translate3d(-14.9vw, -6.8vw, 0) scale(1.49, 0.42); }
+    }
+
+    @keyframes ghostSkinsToTab {
+      0%, 68% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+      70% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      78%, 88% { opacity: 1; transform: translate3d(-15vw, -6.8vw, 0) scale(1.49, 0.42); }
+      92%, 100% { opacity: 0; transform: translate3d(-15vw, -6.8vw, 0) scale(1.49, 0.42); }
+    }
+
+    @keyframes ghostSettingsToTab {
+      0%, 68% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+      70% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      78%, 88% { opacity: 1; transform: translate3d(43.3vw, -18.2vw, 0) scale(0.99, 0.42); }
+      92%, 100% { opacity: 0; transform: translate3d(43.3vw, -18.2vw, 0) scale(0.99, 0.42); }
+    }
+
+    @keyframes realInterfacePass {
+      0%, 76% { opacity: 0; transform: translate3d(0, 8%, 0) scale(0.98); }
+      80%, 92% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      95%, 100% { opacity: 0; transform: translate3d(0, -5%, 0) scale(1.02); }
+    }
+
+    @keyframes realTabActive {
+      0%, 79% { color: rgba(255, 255, 255, 0.78); box-shadow: inset 0 -0.32vw 0 transparent; }
+      80%, 83% { color: #fff; box-shadow: inset 0 -0.32vw 0 #fff; }
+      84%, 100% { color: rgba(255, 255, 255, 0.78); box-shadow: inset 0 -0.32vw 0 transparent; }
+    }
+
+    @keyframes realSkinsTabActive {
+      0%, 83% { color: rgba(255, 255, 255, 0.78); box-shadow: inset 0 -0.32vw 0 transparent; }
+      84%, 87% { color: #fff; box-shadow: inset 0 -0.32vw 0 #fff; }
+      88%, 100% { color: rgba(255, 255, 255, 0.78); box-shadow: inset 0 -0.32vw 0 transparent; }
+    }
+
+    @keyframes realSettingsTabActive {
+      0%, 87% { color: rgba(255, 255, 255, 0.78); box-shadow: inset 0 -0.32vw 0 transparent; }
+      88%, 91% { color: #fff; box-shadow: inset 0 -0.32vw 0 #fff; }
+      92%, 100% { color: rgba(255, 255, 255, 0.78); box-shadow: inset 0 -0.32vw 0 transparent; }
+    }
+
+    @keyframes realModsScreen {
+      0%, 79% { opacity: 0; transform: translate3d(5%, 0, 0); }
+      80%, 83% { opacity: 1; transform: translate3d(0, 0, 0); }
+      84%, 100% { opacity: 0; transform: translate3d(-4%, 0, 0); }
+    }
+
+    @keyframes realSkinsScreen {
+      0%, 83% { opacity: 0; transform: translate3d(5%, 0, 0); }
+      84%, 87% { opacity: 1; transform: translate3d(0, 0, 0); }
+      88%, 100% { opacity: 0; transform: translate3d(-4%, 0, 0); }
+    }
+
+    @keyframes realSettingsScreen {
+      0%, 87% { opacity: 0; transform: translate3d(5%, 0, 0); }
+      88%, 91% { opacity: 1; transform: translate3d(0, 0, 0); }
+      92%, 100% { opacity: 0; transform: translate3d(-4%, 0, 0); }
+    }
+
+    @keyframes beatFlash {
+      0% { opacity: 0.16; }
+      9% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    @media (max-width: 720px) {
+      .controls {
+        left: 12px;
+        right: 12px;
+        justify-content: center;
+      }
+
+      .controls button {
+        padding: 9px 10px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage-shell" aria-label="MSC Launcher advertising animation">
+    <section class="ad metro-only" id="ad">
+      <div class="color-wash"></div>
+      <div class="map-wash"></div>
+
+      <header class="brand-line">
+        <img src="../src/main/resources/Resources/launcher-icon.png" alt="">
+        <div>
+          <strong>MSC Launcher</strong>
+          <span>полный лаунчер для Minecraft</span>
+        </div>
+      </header>
+
+      <section class="metro-grid" aria-hidden="true">
+        <article class="tile large blue feature-tile">
+          <img class="pixel" src="../src/main/resources/Resources/launcher-icon.png" alt="">
+          <strong>MSC Launcher</strong>
+          <span>все нужное в одном окне</span>
+        </article>
+        <article class="tile teal">
+          <img src="../src/main/resources/Resources/nav/nav_home.png" alt="">
+          <strong>главная</strong>
+        </article>
+        <article class="tile photo large">
+          <strong>обои</strong>
+          <span>меняй настроение лаунчера</span>
+        </article>
+        <article class="tile green">
+          <img src="../src/main/resources/Resources/nav/nav_mods.png" alt="">
+          <strong>моды</strong>
+        </article>
+        <article class="tile orange wide">
+          <strong>Forge / Fabric</strong>
+          <span>NeoForge, Quilt и OptiFine</span>
+        </article>
+        <article class="tile magenta">
+          <img src="../src/main/resources/Resources/nav/nav_skins.png" alt="">
+          <strong>скины</strong>
+        </article>
+        <article class="tile yellow">
+          <img src="../src/main/resources/Resources/set/set_play.png" alt="">
+          <strong>играть</strong>
+        </article>
+        <article class="tile dark wide">
+          <strong>настройки интерфейса</strong>
+          <span>тема, память, Java, обои</span>
+        </article>
+        <article class="tile teal tall">
+          <img src="../src/main/resources/Resources/modern/btn_install_mod.png" alt="">
+          <strong>установка модов</strong>
+        </article>
+        <article class="tile blue">
+          <img src="../src/main/resources/Resources/nav/nav_library.png" alt="">
+          <strong>версии</strong>
+        </article>
+        <article class="tile green wide">
+          <strong>обновил</strong>
+          <span>и сразу зашел</span>
+        </article>
+        <article class="tile orange">
+          <img src="../src/main/resources/Resources/nav/nav_settings.png" alt="">
+          <strong>настройки</strong>
+        </article>
+      </section>
+
+      <section class="word-burst" aria-hidden="true">
+        <h1 class="word">играй</h1>
+        <h1 class="word">модь</h1>
+        <h1 class="word">настрой</h1>
+        <h1 class="word">меняй</h1>
+      </section>
+
+      <div class="cursor" aria-hidden="true"></div>
+
+      <section class="touch-stage" aria-hidden="true">
+        <div class="touch-copy">
+          <h2>metro ui</h2>
+          <p>Плитки превращаются во вкладки: жест, перестройка сетки и плавный вход в раздел.</p>
+        </div>
+        <div class="touch-board">
+          <article class="touch-tile a active">
+            <strong>главная</strong>
+            <span>live tile</span>
+          </article>
+          <article class="touch-tile b">
+            <strong>моды</strong>
+            <span>Forge / Fabric</span>
+          </article>
+          <article class="touch-tile c active">
+            <strong>обои</strong>
+            <span>фон лаунчера</span>
+          </article>
+          <article class="touch-tile d">
+            <strong>скин</strong>
+          </article>
+          <article class="touch-tile e active">
+            <strong>Java</strong>
+          </article>
+          <article class="touch-tile f">
+            <strong>настройки интерфейса</strong>
+            <span>тема, сетка, боковая панель</span>
+          </article>
+          <article class="touch-tile g">
+            <strong>запуск</strong>
+            <span>играть без лишних шагов</span>
+          </article>
+          <div class="metro-tabs">
+            <span class="metro-tab active">главная</span>
+            <span class="metro-tab">моды</span>
+            <span class="metro-tab">скины</span>
+            <span class="metro-tab">настройки</span>
+          </div>
+          <div class="metro-panel">
+            <div class="metro-panel-main">
+              <strong>играть</strong>
+            </div>
+            <div class="metro-panel-side">
+              <div class="metro-panel-row"><b>профиль готов</b><i></i></div>
+              <div class="metro-panel-row"><b>моды подключены</b><i></i></div>
+              <div class="metro-panel-row"><b>Java выбрана</b><i></i></div>
+            </div>
+          </div>
+          <div class="touch-ripple"></div>
+          <img class="finger" src="assets/real-finger-pointing-pixcrafter.jpg" alt="">
+        </div>
+      </section>
+
+      <section class="customize-launch" aria-hidden="true">
+        <div class="customize-cover"></div>
+        <div class="customize-copy">
+          <h2>кастомизация в настройках</h2>
+          <p>Выбирай обои, тему интерфейса, память, Java и поведение запуска без ручного копания в файлах.</p>
+          <div class="settings-preview">
+            <div class="setting-row"><b>обои</b><span class="setting-bar"><i></i></span></div>
+            <div class="setting-row"><b>тема</b><span class="setting-bar"><i></i></span></div>
+            <div class="setting-row"><b>память</b><span class="setting-bar"><i></i></span></div>
+            <div class="setting-row"><b>Java</b><span class="setting-bar"><i></i></span></div>
+          </div>
+          <div class="customize-pills">
+            <span>светлая / темная</span>
+            <span>свои обои</span>
+            <span>папки игры</span>
+            <span>параметры запуска</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="device" aria-hidden="true">
+        <div class="window">
+          <div class="window-top">
+            <span>MSC Launcher</span>
+            <span>1.21.5 ready</span>
+          </div>
+          <div class="window-body">
+            <nav class="window-nav">
+              <img src="../src/main/resources/Resources/nav/nav_home.png" alt="">
+              <img src="../src/main/resources/Resources/nav/nav_mods.png" alt="">
+              <img src="../src/main/resources/Resources/nav/nav_skins.png" alt="">
+              <img src="../src/main/resources/Resources/nav/nav_settings.png" alt="">
+            </nav>
+            <div class="window-content">
+              <div class="preview"></div>
+              <div class="side-cards">
+                <div class="mini-card">моды<br>готовы</div>
+                <div class="mini-card">скин<br>выбран</div>
+                <div class="mini-card">Java<br>найдена</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tile-strip" aria-hidden="true">
+        <div class="strip-tile">обои</div>
+        <div class="strip-tile">темы</div>
+        <div class="strip-tile">аккаунты</div>
+        <div class="strip-tile">скины</div>
+        <div class="strip-tile">моды</div>
+        <div class="strip-tile">версии</div>
+        <div class="strip-tile">запуск</div>
+      </section>
+
+      <section class="feature-wall" aria-hidden="true">
+        <div class="feature-title">
+          <h2>больше функций</h2>
+          <p>MSC Launcher закрывает весь путь: от установки версии до запуска игры с готовыми настройками.</p>
+        </div>
+        <div class="feature-list">
+          <div class="feature-card">
+            <img src="../src/main/resources/Resources/set/set_play.png" alt="">
+            <strong>версии Minecraft</strong>
+            <span>установка и запуск профилей</span>
+          </div>
+          <div class="feature-card">
+            <img src="../src/main/resources/Resources/nav/nav_mods.png" alt="">
+            <strong>моды и лоадеры</strong>
+            <span>Forge, Fabric, NeoForge, Quilt</span>
+          </div>
+          <div class="feature-card">
+            <img src="../src/main/resources/Resources/nav/nav_skins.png" alt="">
+            <strong>скины</strong>
+            <span>редактирование и предпросмотр</span>
+          </div>
+          <div class="feature-card">
+            <img src="../src/main/resources/Resources/set/set_account.png" alt="">
+            <strong>аккаунты</strong>
+            <span>Microsoft и Ely.by</span>
+          </div>
+          <div class="feature-card">
+            <img src="../src/main/resources/Resources/set/set_interface.png" alt="">
+            <strong>интерфейс</strong>
+            <span>темы, обои, боковая панель</span>
+          </div>
+          <div class="feature-card">
+            <img src="../src/main/resources/Resources/set/set_storage.png" alt="">
+            <strong>память и Java</strong>
+            <span>папки, runtime, параметры запуска</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="gameplay" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="cloud one"></div>
+        <div class="cloud two"></div>
+        <div class="hill left"></div>
+        <div class="hill right"></div>
+        <div class="game-copy">
+          <h2>и сразу в игру</h2>
+          <p>Выбрал профиль, настроил лаунчер, нажал играть — мир уже загружен.</p>
+        </div>
+        <div class="player">
+          <i class="head"></i>
+          <i class="body"></i>
+          <i class="arm-l"></i>
+          <i class="arm-r"></i>
+          <i class="leg-l"></i>
+          <i class="leg-r"></i>
+        </div>
+        <div class="blocks">
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+          <span class="block"></span><span class="block"></span><span class="block"></span><span class="block"></span>
+        </div>
+        <div class="game-ui">
+          <div class="hearts">
+            <span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span>
+            <span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span><span class="heart"></span>
+          </div>
+          <div class="hotbar">
+            <span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span>
+            <span class="slot"></span><span class="slot"></span><span class="slot"></span><span class="slot"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="launcher-tiles-demo" aria-hidden="true">
+        <div class="demo-bg"></div>
+        <h2 class="demo-title">
+          Introducing Metro UI
+          <span>плитки, переходы, цвет и фон в одном стиле</span>
+        </h2>
+        <div class="launcher-board">
+          <article class="launcher-tile large blue">
+            <img src="../src/main/resources/Resources/launcher-icon.png" alt="">
+            <strong>MSC Launcher</strong>
+            <span>Metro home</span>
+          </article>
+          <article class="launcher-tile teal dragged">
+            <img src="../src/main/resources/Resources/pltika/plit_mods.png" alt="">
+            <strong>моды</strong>
+            <span>перетащи плитку</span>
+          </article>
+          <article class="launcher-tile orange swap-target">
+            <img src="../src/main/resources/Resources/pltika/plit_skins.png" alt="">
+            <strong>скины</strong>
+          </article>
+          <article class="launcher-tile green">
+            <img src="../src/main/resources/Resources/pltika/plit_library.png" alt="">
+            <strong>версии</strong>
+          </article>
+          <article class="launcher-tile magenta">
+            <img src="../src/main/resources/Resources/pltika/plit_settings.png" alt="">
+            <strong>настройки</strong>
+          </article>
+          <article class="launcher-tile dark wide">
+            <img src="../src/main/resources/Resources/pltika/plit_folder.png" alt="">
+            <strong>папки игры</strong>
+            <span>быстрый доступ</span>
+          </article>
+          <article class="launcher-tile teal">
+            <img src="../src/main/resources/Resources/pltika/plit_backups.png" alt="">
+            <strong>бэкапы</strong>
+          </article>
+          <article class="launcher-tile release wide">
+            <img src="../src/main/resources/Resources/launcher-icon.png" alt="">
+            <strong>Release</strong>
+            <span>камера входит в плитку</span>
+          </article>
+        </div>
+        <div class="drag-shadow"></div>
+        <div class="tab-transition">
+          <div class="tab-ghost mods">
+            <img src="../src/main/resources/Resources/pltika/plit_mods.png" alt="">
+            <strong>Моды</strong>
+          </div>
+          <div class="tab-ghost skins">
+            <img src="../src/main/resources/Resources/pltika/plit_skins.png" alt="">
+            <strong>Скины</strong>
+          </div>
+          <div class="tab-ghost settings">
+            <img src="../src/main/resources/Resources/pltika/plit_settings.png" alt="">
+            <strong>Настройки</strong>
+          </div>
+        </div>
+        <div class="real-interface">
+          <div class="real-tabs">
+            <div class="real-tab mods">
+              <img src="../src/main/resources/Resources/nav/nav_mods.png" alt="">
+              <span>Моды</span>
+            </div>
+            <div class="real-tab skins">
+              <img src="../src/main/resources/Resources/nav/nav_skins.png" alt="">
+              <span>Скины</span>
+            </div>
+            <div class="real-tab settings">
+              <img src="../src/main/resources/Resources/nav/nav_settings.png" alt="">
+              <span>Настройки</span>
+            </div>
+          </div>
+          <div class="real-body">
+            <section class="real-screen mods-screen">
+              <div class="real-card">
+                <h3>Моды и модпаки</h3>
+                <div class="search-bar">Search Modrinth directly from MSC Launcher</div>
+                <div class="pill-row">
+                  <span class="real-pill active">Mods</span>
+                  <span class="real-pill">Modpacks</span>
+                  <span class="real-pill">Resource Packs</span>
+                  <span class="real-pill">Shaders</span>
+                </div>
+                <div class="real-list">
+                  <div class="real-row"><span class="real-icon">M</span><span>Sodium</span><span>1.21.x</span></div>
+                  <div class="real-row"><span class="real-icon">F</span><span>Forge build</span><span>Ready</span></div>
+                  <div class="real-row"><span class="real-icon">C</span><span>CurseForge</span><span>25 projects</span></div>
+                </div>
+              </div>
+              <div class="real-card">
+                <h3>Modrinth / CurseForge</h3>
+                <p>Search and install projects directly from Modrinth</p>
+                <div class="real-list">
+                  <div class="real-row"><span class="real-icon">+</span><span>Установить мод</span><span>Install</span></div>
+                  <div class="real-row"><span class="real-icon">UP</span><span>Check updates</span><span>Ready</span></div>
+                  <div class="real-row"><span class="real-icon">CFG</span><span>Создать сборку</span><span>Build</span></div>
+                </div>
+              </div>
+            </section>
+            <section class="real-screen skins-screen">
+              <div class="real-card">
+                <h3>Скины</h3>
+                <div class="skin-preview">
+                  <div class="skin-person">
+                    <i class="head"></i><i class="body"></i><i class="arm-l"></i><i class="arm-r"></i><i class="leg-l"></i><i class="leg-r"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="real-card">
+                <h3>Библиотека скинов</h3>
+                <div class="pill-row">
+                  <span class="real-pill active">Текущий</span>
+                  <span class="real-pill">Библиотека</span>
+                  <span class="real-pill">Second layer</span>
+                </div>
+                <div class="real-list">
+                  <div class="real-row"><span class="real-icon">UP</span><span>Загрузить скин</span><span>Upload</span></div>
+                  <div class="real-row"><span class="real-icon">OK</span><span>Надеть скин</span><span>Equip</span></div>
+                  <div class="real-row"><span class="real-icon">EDIT</span><span>Редактировать скин</span><span>Edit</span></div>
+                </div>
+              </div>
+            </section>
+            <section class="real-screen settings-screen">
+              <div class="real-card settings-list">
+                <h3>Настройки</h3>
+                <div class="real-row"><span class="real-icon">ACC</span><span>Аккаунты</span></div>
+                <div class="real-row"><span class="real-icon">DIR</span><span>Папки и Java</span></div>
+                <div class="real-row"><span class="real-icon">▣</span><span>Интерфейс</span></div>
+              </div>
+              <div class="real-card">
+                <h3>Параметры</h3>
+                <div class="real-list">
+                  <div class="real-row"><span class="real-icon">IMG</span><span>Обои лаунчера</span><span>Choose</span></div>
+                  <div class="real-row"><span class="real-icon">T</span><span>Тема</span><span>Dark</span></div>
+                  <div class="real-row"><span class="real-icon">J</span><span>Java executable</span><span>Auto</span></div>
+                  <div class="real-row"><span class="real-icon">RAM</span><span>Память JVM</span><span class="real-meter"><i></i></span></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <div class="palette">
+          <span class="color-dot"></span>
+        </div>
+        <div class="metro-cursor"></div>
+        <div class="release-window">
+          <div class="release-copy">
+            <img src="../src/main/resources/Resources/launcher-icon.png" alt="">
+            <strong>MSC Launcher 2.1 LTSC</strong>
+            <span>Release 21.07.2026</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-card">
+        <div class="final-logo">
+          <img src="../src/main/resources/Resources/launcher-icon.png" alt="">
+        </div>
+        <div class="final-copy">
+          <strong>MSC Launcher</strong>
+          <span>полная версия: игра, моды, обои и настройки</span>
+        </div>
+      </section>
+
+      <div class="beat"></div>
+    </section>
+  </main>
+
+  <div class="controls">
+    <button type="button" id="replay">Replay</button>
+    <button type="button" id="fullscreen">Fullscreen</button>
+  </div>
+
+  <script>
+    const ad = document.getElementById("ad");
+    const replay = document.getElementById("replay");
+    const fullscreen = document.getElementById("fullscreen");
+
+    function restart() {
+      ad.classList.add("replay");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => ad.classList.remove("replay"));
+      });
+    }
+
+    replay.addEventListener("click", restart);
+    fullscreen.addEventListener("click", () => {
+      document.querySelector(".stage-shell").requestFullscreen?.();
+      restart();
+    });
+  </script>
+</body>
+</html>

@@ -1,33 +1,122 @@
-# MSC Launcher Privacy Policy
+# Лаунчер — сборка через Gradle
 
-**Last updated: August 10, 2026**
+Проект собирается через Gradle. Пользовательский JAR совместим с Java 8
+(class file version 52), при этом исходники можно продолжать писать на Java 17.
+Весь код находится в том же default package,
+что и раньше — точка входа осталась `Main.main(String[])`.
 
-We care about your privacy. This document explains what data MSC Launcher may collect and how that data is used.
+## Что изменилось
 
-## 1. What Data We Collect
+- Исходники перемещены в стандартную для Gradle раскладку:
+  `*.java` → `src/main/java/*.java`
+- Ресурсы (иконки, wallpaper, README из `modern/` и т.д.) перемещены в
+  `src/main/resources/Resources/...` — это тот же путь `Resources/...`,
+  который код и раньше искал в classpath (см. `LauncherAssets.java`,
+  `GitHubUpdater.java`), поэтому загрузка картинок продолжит работать без
+  правок кода.
+- `proguard.pro` и оригинальный `META-INF/MANIFEST.MF` сохранены в проекте
+  (последний — в `legacy-original-build-files/`, для истории; Gradle сам
+  генерирует манифест jar'а с теми же атрибутами `Main-Class: Main` и
+  `Implementation-Version: 2.0` — см. `build.gradle`).
+- После обычной компиляции JVM Downgrader переводит байткод и используемые
+  новые JDK API на Java 8. Необходимые совместимые реализации добавляются
+  внутрь итогового JAR, поэтому отдельные runtime-зависимости не нужны.
+- Пользователю не нужно скачивать JavaFX отдельно: встроенное OAuth-окно
+  использует JavaFX из полной Java 8. Зависимости `compileOnly` Gradle
+  автоматически получает только для компиляции; в дистрибутив они не попадают.
 
-MSC Launcher may access the following publicly available Discord data, depending on the permissions granted:
+## Где хранятся версии и миры
 
-* User ID and username.
-* IDs of servers (guilds) where the application has been added.
-* Text commands sent to the application.
+Постоянные данные лаунчера отделены от установленной программы. На Windows
+профили, их миры, библиотеки, настройки и аккаунты находятся в
+`%APPDATA%\msc-launcher-data`; на Linux — в
+`$XDG_DATA_HOME/msc-launcher-data` (либо `~/.local/share/msc-launcher-data`).
+Поэтому обновляющий установщик может заменить каталог приложения, не затрагивая
+версии и сохранения.
 
-## 2. How We Use the Data
+При первом запуске данные из прежнего `%APPDATA%\msc-launcher` автоматически
+копируются в новый каталог. Исходные файлы не удаляются, а уже существующие
+файлы в новом хранилище не перезаписываются. Одноимённые профили не смешиваются:
+конфликтная старая копия сохраняется в `legacy-recovery`, но не добавляется в
+список установленных версий автоматически.
 
-The collected data is used exclusively for:
+Если уведомления об обновлениях включены, лаунчер проверяет последний GitHub
+Release при запуске; ручная проверка доступна в настройках. Подходящий установщик
+Windows или standalone JAR скачивается во временный файл, проверяется и только
+после подтверждения пользователя устанавливается. Автоматическое обновление
+Forge/Fabric/Quilt/NeoForge перед нажатием «Играть» также отключено: запуск игры
+не изменяет выбранный профиль.
 
-* Ensuring the proper operation of launcher features and Discord integration, including Discord Rich Presence.
-* Maintaining internal usage statistics.
+## Требования
 
-**We do not sell, share, or distribute your data to third parties.**
+- Для сборки нужен JDK 17+ — на нём запускается Gradle и компилируются
+  современные исходники. Готовому лаунчеру достаточно Java 8.
+- Интернет для первого запуска (Gradle Wrapper скачает Gradle 9.1, но
+  сам `gradle-wrapper.jar` уже включён в проект).
+- Для архива `with-java` нужна полная Java 8 со встроенным JavaFX, путь к которой
+  передаётся через `bundledJavaHome`. Подойдут Oracle Java 8 или Full-сборка
+  Liberica JRE/JDK 8; сборка проверяет наличие `jfxrt.jar`.
 
-## 3. Data Storage
+### Если Gradle всё ещё ругается на версию JDK
 
-Data is stored only for as long as necessary to provide and maintain the functionality of the application.
+Проверьте, каким JDK у вас запускается Gradle:
 
-Users may remove the application from their server or revoke its authorization at any time through their Discord account settings. Once authorization is revoked, the processing of the corresponding data will cease.
+```bash
+./gradlew -v
+```
 
-## 4. Contact
+В выводе будет строка `JVM:` — она должна быть 17 или выше. Если там
+что-то более старое (8/11), установите JDK 17+ и укажите его через переменную
+`JAVA_HOME` или файл `gradle.properties`:
 
-If you have any questions regarding the application or wish to request the deletion of your data, you can contact the developer via Discord: doymine2
+```properties
+org.gradle.java.home=C:\\путь\\к\\jdk-17
+```
 
+## Команды
+
+```bash
+# Собрать и запустить
+./gradlew run
+
+# Собрать Java 8 jar
+./gradlew build
+# jar появится в build/libs/minecraft-launcher-2.4.0.jar
+
+# Запустить собранный jar напрямую
+java -jar build/libs/minecraft-launcher-2.4.0.jar
+
+# Явная проверка на установленной Java 8 (Windows)
+C:\\Java\\jre8\\bin\\java.exe -jar build\\libs\\minecraft-launcher-2.4.0.jar
+```
+
+На Windows используйте `gradlew.bat` вместо `./gradlew`.
+
+### Архив вместе с Java 8
+
+Основной интерфейс использует Swing, а встроенное окно OAuth — JavaFX 8.
+Чтобы положить их в один архив без отдельных библиотек, укажите корневой
+каталог полной JDK/JRE 8:
+
+```bash
+./gradlew clean bundledDistZip -PbundledJavaHome="C:\\Java\\liberica-jre8-full"
+```
+
+Готовый ZIP появится в `build/distributions`. На 32-битной Windows укажите
+32-битный `bundledJavaHome`. Java лаунчера и Java самой игры выбираются
+независимо: для новых версий Minecraft в настройках можно указать Java 17/21.
+
+## Проверка
+
+Сборка проверена на JDK 25, а итоговый JAR — на Liberica JRE 8 Full
+`1.8.0_492` со встроенным JavaFX. Все 414 `.class`-файлов в архиве имеют
+версию не выше 52; лаунчер запускается, а `JFXPanel` и OAuth `WebView`
+успешно создаются. Отдельных классов JavaFX внутри JAR лаунчера нет.
+
+## Про ProGuard
+
+Файл `proguard.pro` сохранён в корне проекта в неизменном виде. Gradle
+из коробки не запускает ProGuard — если нужно встроить обфускацию в сборку,
+проще всего подключить плагин `com.guardsquare:proguard-gradle` в
+`build.gradle` и добавить task, использующий уже готовый `proguard.pro`.
+Могу сделать это отдельным шагом, если понадобится.

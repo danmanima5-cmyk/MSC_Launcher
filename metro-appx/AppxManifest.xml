@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
+  <Identity Name="MSCLauncher.MetroTiles"
+            Publisher="CN=Meine Starten Corporation"
+            Version="3.0.0.0"
+            ProcessorArchitecture="neutral" />
+  <Properties>
+    <DisplayName>MSC Launcher Tiles</DisplayName>
+    <PublisherDisplayName>Meine Starten Corporation</PublisherDisplayName>
+    <Description>Плиточная оболочка MSC Launcher для Windows 8.1</Description>
+    <Logo>images\store-logo.png</Logo>
+  </Properties>
+  <Prerequisites>
+    <OSMinVersion>6.3.0</OSMinVersion>
+    <OSMaxVersionTested>6.3.0</OSMaxVersionTested>
+  </Prerequisites>
+  <Resources>
+    <Resource Language="ru-ru" />
+  </Resources>
+  <Applications>
+    <Application Id="App" StartPage="default.html">
+      <VisualElements DisplayName="MSC Launcher Tiles"
+                      Description="Плитки профилей и разделов MSC Launcher"
+                      Logo="images\logo-150.png"
+                      SmallLogo="images\logo-30.png"
+                      ForegroundText="light"
+                      BackgroundColor="#6A3D9A">
+        <DefaultTile ShowName="allLogos"
+                     ShortName="MSC Launcher"
+                     WideLogo="images\logo-310x150.png" />
+        <SplashScreen Image="images\splash-620x300.png"
+                      BackgroundColor="#6A3D9A" />
+      </VisualElements>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>

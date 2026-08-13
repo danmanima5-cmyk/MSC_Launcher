@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.danmanima5_cmyk.MSC_Launcher</id>
+  <name>MSC Launcher</name>
+  <summary>Install, manage, and launch Minecraft profiles</summary>
+  <summary xml:lang="ru">Установка, управление и запуск профилей Minecraft</summary>
+  <developer id="io.github.danmanima5_cmyk">
+    <name>danmanima5-cmyk</name>
+  </developer>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <description>
+    <p>
+      MSC Launcher is a third-party desktop launcher for installing, managing,
+      and starting Minecraft profiles from one interface.
+    </p>
+    <p xml:lang="ru">
+      MSC Launcher — сторонний настольный лаунчер для установки, управления
+      и запуска профилей Minecraft из одного интерфейса.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.danmanima5_cmyk.MSC_Launcher.desktop</launchable>
+  <provides>
+    <binary>msc-launcher</binary>
+  </provides>
+  <url type="homepage">https://github.com/danmanima5-cmyk/MSC_Launcher</url>
+  <releases>
+    <release version="2.2.0" date="2026-07-28">
+      <description>
+        <p>MSC Launcher 2.2.0 RTM release with package-aware GitHub updates.</p>
+      </description>
+    </release>
+    <release version="2.1.0" date="2026-07-20">
+      <description>
+        <p>Flatpak package for the proprietary MSC Launcher 2.1.0 release.</p>
+      </description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>
