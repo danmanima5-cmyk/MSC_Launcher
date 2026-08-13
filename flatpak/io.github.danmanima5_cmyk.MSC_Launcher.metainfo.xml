@@ -19,6 +19,16 @@
       и запуска профилей Minecraft из одного интерфейса.
     </p>
   </description>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/danmanima5-cmyk/MSC_Launcher/flathub-media-3.0.0/flatpak/screenshots/launcher-home.png</image>
+      <caption>Main view of the launcher</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/danmanima5-cmyk/MSC_Launcher/flathub-media-3.0.0/flatpak/screenshots/launcher-mods.png</image>
+      <caption>Mod management view</caption>
+    </screenshot>
+  </screenshots>
   <launchable type="desktop-id">io.github.danmanima5_cmyk.MSC_Launcher.desktop</launchable>
   <provides>
     <binary>msc-launcher</binary>
